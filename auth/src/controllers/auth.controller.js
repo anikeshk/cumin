@@ -32,12 +32,12 @@ const UserController = {
       }
 
       const accessToken = jwt.sign(
-        { userid: user.id, username: user.name },
+        { user_id: user.id, email: user.email },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: '15m' }
       );
       const refreshToken = jwt.sign(
-        { userid: user.id, username: user.name },
+        { user_id: user.id, email: user.email },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: '7d' }
       );
