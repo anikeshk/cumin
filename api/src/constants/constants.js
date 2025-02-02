@@ -9,4 +9,9 @@ module.exports = {
     MEDIUM: 1,
     HIGH: 2,
   },
+  JOB_STATUS: {
+    PENDING: 0,
+    IN_PROGRESS: 1,
+    COMPLETED: 2,
+  },
 };

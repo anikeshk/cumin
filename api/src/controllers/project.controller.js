@@ -3,11 +3,11 @@ const rds = require('../db/rds');
 const ProjectController = {
   async createProject(req, res) {
     try {
-      const { userid } = req.user;
+      const { user_id } = req.user;
       const { name, description } = req.body;
       const rows = await rds.query(
         'INSERT INTO projects (name, description, created_by) VALUES ($1, $2, $3) RETURNING *',
-        [name, description, userid]
+        [name, description, user_id]
       );
       // insert into project count table
       res.status(201).json({ message: 'Project created successfully' });
