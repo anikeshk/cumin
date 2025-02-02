@@ -5,6 +5,7 @@ const {
   updateTask,
   deleteTask,
 } = require('../db/dynamodb');
+const { sendNotificatinMessage } = require('../db/sqs');
 
 const { TASK_STATUS, TASK_PRIORITY } = require('../constants/constants');
 
@@ -54,6 +55,12 @@ const TaskController = {
       const { project_id, task_id } = req.query;
       const updates = req.body;
       const task = await updateTask(project_id, task_id, updates);
+      const notification = {
+        project_id,
+        task_id,
+        updates,
+      };
+      await sendNotificatinMessage('task:updated', notification);
       res.status(200).json({ message: 'Task updated successfully', task });
     } catch (error) {
       res.status(500).json({ error: error.message });

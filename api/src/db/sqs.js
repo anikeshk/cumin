@@ -8,18 +8,14 @@ const sqs = new SQSClient({
   },
 });
 
-async function sendExportJob(userId, jobId) {
-  const userId = exportJobs.get(jobId);
-  if (!userId) return;
-
+async function sendNotificatinMessage(type, body) {
   const message = {
-    type: 'export-job',
-    userId,
-    jobId,
+    type,
+    body,
   };
 
   const params = {
-    QueueUrl: process.env.AWS_CUMIN_JOBS_SQS_QUEUE_URL,
+    QueueUrl: process.env.AWS_CUMIN_SQS_QUEUE_URL,
     MessageBody: JSON.stringify(message),
   };
 
@@ -31,4 +27,4 @@ async function sendExportJob(userId, jobId) {
   }
 }
 
-module.exports = { sendExportJob };
+module.exports = { sendNotificatinMessage };
