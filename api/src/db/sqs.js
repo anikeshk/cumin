@@ -8,10 +8,11 @@ const sqs = new SQSClient({
   },
 });
 
-async function sendNotificatinMessage(type, body) {
+async function sendNotificatinMessage(type, userId, payload) {
   const message = {
     type,
-    body,
+    userId,
+    payload,
   };
 
   const params = {

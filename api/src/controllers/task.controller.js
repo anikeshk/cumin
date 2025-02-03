@@ -52,15 +52,16 @@ const TaskController = {
   async updateTask(req, res) {
     try {
       // add label, assignee and other fields
+      const { user_id } = req.user;
       const { project_id, task_id } = req.query;
       const updates = req.body;
       const task = await updateTask(project_id, task_id, updates);
-      const notification = {
+      const payload = {
         project_id,
         task_id,
         updates,
       };
-      await sendNotificatinMessage('task:updated', notification);
+      await sendNotificatinMessage('task:updated', user_id, payload);
       res.status(200).json({ message: 'Task updated successfully', task });
     } catch (error) {
       res.status(500).json({ error: error.message });
