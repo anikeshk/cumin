@@ -1,14 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const db = require('../db/index');
+const rds = require('../db/rds');
 
 const UserController = {
   async registerUser(req, res) {
     try {
       const { name, email, password } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);
-      await db.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [
+      await rds.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [
         name,
         email,
         hashedPassword,
@@ -21,7 +21,7 @@ const UserController = {
   async loginUser(req, res) {
     try {
       const { email, password } = req.body;
-      const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+      const { rows } = await rds.query('SELECT * FROM users WHERE email = $1', [email]);
       if (rows.length === 0) {
         return res.status(400).json({ message: 'Invalid email or password' });
       }
@@ -42,7 +42,7 @@ const UserController = {
         { expiresIn: '7d' }
       );
 
-      await db.query('INSERT INTO tokens (user_id, token) VALUES ($1, $2)', [
+      await rds.query('INSERT INTO tokens (user_id, token) VALUES ($1, $2)', [
         user.id,
         refreshToken,
       ]);
@@ -72,7 +72,7 @@ const UserController = {
         return res.status(401).json({ message: 'Unauthorized' });
       }
 
-      const { rows } = await db.query('SELECT * FROM tokens WHERE token = $1', [refreshToken]);
+      const { rows } = await rds.query('SELECT * FROM tokens WHERE token = $1', [refreshToken]);
       if (rows.length === 0) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
@@ -83,7 +83,7 @@ const UserController = {
         }
 
         const accessToken = jwt.sign(
-          { userid: user.userid, username: user.username },
+          { user_id: user.id, email: user.email },
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: '15m' }
         );
@@ -104,7 +104,7 @@ const UserController = {
   async logoutUser(req, res) {
     try {
       const { refreshToken } = req.cookies;
-      await db.query('DELETE FROM tokens WHERE token = $1', [refreshToken]);
+      await rds.query('DELETE FROM tokens WHERE token = $1', [refreshToken]);
       res
         .clearCookie('accessToken')
         .clearCookie('refreshToken')
