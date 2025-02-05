@@ -83,7 +83,7 @@ const UserController = {
         }
 
         const accessToken = jwt.sign(
-          { user_id: user.id, email: user.email },
+          { user_id: user.user_id, email: user.email },
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: '15m' }
         );
