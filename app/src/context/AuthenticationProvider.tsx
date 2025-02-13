@@ -47,7 +47,7 @@ export const AuthenticationProvider = ({ children }: { children: ReactNode }) =>
       throw new Error(data.error);
     }
     setIsAuthenticated(true);
-    setAuth(data.user);
+    setAuth(data.data);
     //connectSocket();
   };
 
