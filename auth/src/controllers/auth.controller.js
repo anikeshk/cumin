@@ -47,6 +47,12 @@ const UserController = {
         refreshToken,
       ]);
 
+      const data = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      };
+
       res
         .cookie('accessToken', accessToken, {
           httpOnly: true,
@@ -60,7 +66,7 @@ const UserController = {
           sameSite: 'strict',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
-        .json({ message: 'Login successful' });
+        .json({ message: 'Login successful', data });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
