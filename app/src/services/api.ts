@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
   withCredentials: true,
 });
 
 export const authApi = axios.create({
-  baseURL: '/auth',
+  baseURL: `${import.meta.env.VITE_API_URL}/auth`,
   withCredentials: true,
 });
 
