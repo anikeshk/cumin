@@ -5,12 +5,19 @@ const ProjectController = {
     try {
       const { user_id } = req.user;
       const { name, description } = req.body;
-      const rows = await rds.query(
+      const { rows } = await rds.query(
         'INSERT INTO projects (name, description, created_by) VALUES ($1, $2, $3) RETURNING *',
         [name, description, user_id]
       );
-      // insert into project count table
-      res.status(201).json({ message: 'Project created successfully' });
+      let project = {
+        id: rows[0].id.toString(),
+        name: rows[0].name,
+        description: rows[0].description,
+        todoCount: rows[0].todoCount,
+        inProgressCount: rows[0].inProgressCount,
+        doneCount: rows[0].doneCount,
+      };
+      res.status(201).json({ project });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -18,7 +25,20 @@ const ProjectController = {
   async getProjects(req, res) {
     try {
       const { rows } = await rds.query('SELECT * FROM projects');
-      res.status(200).json({ projects: rows });
+      let projects = [];
+      if (rows.length > 0) {
+        projects = rows.map((project) => {
+          return {
+            id: project.id.toString(),
+            name: project.name,
+            description: project.description,
+            todoCount: project.todoCount,
+            inProgressCount: project.inProgressCount,
+            doneCount: project.doneCount,
+          };
+        });
+      }
+      res.status(200).json({ projects });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

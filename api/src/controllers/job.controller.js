@@ -1,19 +1,17 @@
 const rds = require('../db/rds');
 const { createJob, getJobsByUser } = require('../db/dynamodb');
 
-const { JOB_STATUS } = require('../constants/constants');
-
 const JobController = {
   createJob: async (req, res) => {
     try {
       let { user_id } = req.user;
       user_id = String(user_id);
-      const { project_id, filter } = req.body;
+      const { projectId } = req.body;
       const job = {
         user_id,
-        project_id,
-        filter,
-        status: JOB_STATUS.PENDING,
+        project_id: projectId,
+        filter: '*',
+        status: 'Pending',
         result: '',
       };
       const createdJob = await createJob(job);
