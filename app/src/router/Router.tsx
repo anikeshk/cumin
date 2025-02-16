@@ -5,7 +5,7 @@ import ProtectedRoute from './ProtectedRouter';
 import MainLayout from '@/layouts/MainLayout';
 import HomePage from '@/pages/HomePage';
 import RegisterPage from '@/pages/RegisterPage';
-import ProjectPage from '@/pages/ProjectPage';
+import TaskBoardPage from '@/pages/TaskBoardPage';
 import NotFound from '@/pages/NotFound';
 
 const router = createBrowserRouter([
@@ -18,7 +18,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { path: '', element: <HomePage /> },
-          { path: 'project/:id', element: <ProjectPage /> },
+          { path: 'project/:id', element: <TaskBoardPage /> },
         ],
       },
       { path: '*', element: <NotFound /> },

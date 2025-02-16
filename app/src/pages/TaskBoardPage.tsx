@@ -1,49 +1,36 @@
 import { useParams } from 'react-router';
 import { useState } from 'react';
-import TaskPage from '@/pages/TaskPage';
-import ExportPage from '@/pages/ExportPage';
 
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  status: 'To Do' | 'In Progress' | 'Done';
-  priority: 'Low' | 'Medium' | 'High';
-}
+import { useTasks } from '@/hooks/useTasks';
+import { useJobs } from '@/hooks/useJobs';
 
-const dummyTasks: Task[] = [
-  { id: '1', name: 'Task 1', description: 'Description 1', status: 'To Do', priority: 'High' },
-  {
-    id: '2',
-    name: 'Task 2',
-    description: 'Description 2',
-    status: 'In Progress',
-    priority: 'Medium',
-  },
-  { id: '3', name: 'Task 3', description: 'Description 3', status: 'Done', priority: 'Low' },
-  { id: '4', name: 'Task 4', description: 'Description 4', status: 'To Do', priority: 'Medium' },
-  {
-    id: '5',
-    name: 'Task 5',
-    description: 'Description 5',
-    status: 'In Progress',
-    priority: 'High',
-  },
-];
+import { Task, TaskForm } from '@/types';
+import TaskFormDialog from '@/components/TaskFormDialog';
+import ExportJobDialog from '@/components/ExportJobDialog';
 
 const ProjectPage = () => {
   const { id } = useParams();
-  const [tasks, setTasks] = useState<Task[]>(dummyTasks);
+  const { tasks, addTask, updateTask } = useTasks(String(id));
+  const { addJob } = useJobs();
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleSaveTask = (updatedTask: Task) => {
-    setTasks(tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
+  const handleSaveTask = async (updatedTask: TaskForm) => {
+    if (updatedTask.id) {
+      await updateTask(updatedTask, String(id));
+      setSelectedTask(null);
+      return;
+    } else {
+      await addTask(updatedTask, String(id));
+    }
+    setIsDialogOpen(false);
     setSelectedTask(null);
   };
 
-  const handleExportTasks = () => {
-    console.log('Exporting tasks:', tasks); // Placeholder for actual export logic
+  const handleExportTasks = async () => {
+    await addJob({ projectId: String(id) });
     setIsExporting(false);
   };
 
@@ -52,7 +39,12 @@ const ProjectPage = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Project {id}</h1>
         <div className="space-x-2">
-          <button className="px-4 py-2 bg-green-500 text-white rounded">Create Task</button>
+          <button
+            onClick={() => setIsDialogOpen(true)}
+            className="px-4 py-2 bg-green-500 text-white rounded"
+          >
+            Create Task
+          </button>
           <button
             onClick={() => setIsExporting(true)}
             className="px-4 py-2 bg-gray-500 text-white rounded"
@@ -81,9 +73,12 @@ const ProjectPage = () => {
                         ? 'border-yellow-500'
                         : 'border-green-500'
                     }`}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setIsDialogOpen(true);
+                    }}
                   >
-                    <h3 className="font-semibold">{task.name}</h3>
+                    <h3 className="font-semibold">{task.title}</h3>
                   </div>
                 ))
             )}
@@ -91,15 +86,14 @@ const ProjectPage = () => {
         ))}
       </div>
 
-      {selectedTask && (
-        <TaskPage
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          onSave={handleSaveTask}
-        />
-      )}
+      <TaskFormDialog
+        currentTask={selectedTask}
+        isOpen={isDialogOpen}
+        onConfirm={handleSaveTask}
+        onClose={() => setIsDialogOpen(false)}
+      />
       {isExporting && (
-        <ExportPage
+        <ExportJobDialog
           taskCount={tasks.length}
           onClose={() => setIsExporting(false)}
           onExport={handleExportTasks}
