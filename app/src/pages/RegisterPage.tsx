@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useAuth } from '@/context/AuthenticationProvider';
+import { useAuth } from '@/providers/AuthenticationProvider';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');

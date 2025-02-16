@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { useAuth } from '@/context/AuthenticationProvider';
+import { useAuth } from '@/providers/AuthenticationProvider';
 
 const LoginPage = () => {
   const { login } = useAuth();

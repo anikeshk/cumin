@@ -1,3 +1,19 @@
+import { Socket } from 'socket.io-client';
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface AuthenticationContextType {
+  isAuthenticated: boolean;
+  auth: User | null;
+  socket: Socket | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -51,3 +67,13 @@ export interface Job {
 export interface JobForm {
   projectId: string;
 }
+
+export interface Notification {
+  id: string;
+  message: string;
+  url: string;
+}
+
+export type NotificationAction =
+  | { type: 'ADD_NOTIFICATION'; payload: Notification }
+  | { type: 'REMOVE_NOTIFICATION'; payload: string };

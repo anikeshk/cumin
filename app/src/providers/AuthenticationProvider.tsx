@@ -1,23 +1,9 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useContext, useEffect, useState, ReactNode } from 'react';
+import { io, Socket } from 'socket.io-client';
+
+import AuthenticationContext from '@/context/AuthenticationContext';
+import { User } from '@/types';
 import { authApi } from '@/services/api';
-// import { connectSocket, disconnectSocket } from '@/services/socket';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-interface AuthenticationContextType {
-  isAuthenticated: boolean;
-  auth: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-export const AuthenticationContext = createContext<AuthenticationContextType | undefined>(
-  undefined
-);
 
 export const AuthenticationProvider = ({ children }: { children: ReactNode }) => {
   const [auth, setAuth] = useState<User | null>(() => {
@@ -28,6 +14,7 @@ export const AuthenticationProvider = ({ children }: { children: ReactNode }) =>
     const storedAuth = localStorage.getItem('isAuthenticated');
     return storedAuth === 'true';
   });
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     if (auth) {
@@ -46,20 +33,28 @@ export const AuthenticationProvider = ({ children }: { children: ReactNode }) =>
     if (data.error) {
       throw new Error(data.error);
     }
-    setIsAuthenticated(true);
+    setSocket(
+      io(`${import.meta.env.VITE_API_URL}`, {
+        withCredentials: true,
+        //autoConnect: false,
+      })
+    );
     setAuth(data.data);
-    //connectSocket();
+    setIsAuthenticated(true);
   };
 
   const logout = async () => {
     await authApi.post('/logout');
-    //disconnectSocket();
-    setAuth(null);
     setIsAuthenticated(false);
+    setAuth(null);
+    if (socket?.connected) {
+      socket.disconnect();
+      setSocket(null);
+    }
   };
 
   return (
-    <AuthenticationContext.Provider value={{ auth, isAuthenticated, login, logout }}>
+    <AuthenticationContext.Provider value={{ auth, isAuthenticated, socket, login, logout }}>
       {children}
     </AuthenticationContext.Provider>
   );

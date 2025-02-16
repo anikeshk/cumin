@@ -1,5 +1,5 @@
 import Router from '@/router/Router';
-import { AuthenticationProvider } from '@/context/AuthenticationProvider';
+import { AuthenticationProvider } from '@/providers/AuthenticationProvider';
 
 const App = () => {
   return (

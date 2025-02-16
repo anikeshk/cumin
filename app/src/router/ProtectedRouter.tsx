@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import { useAuth } from '@/context/AuthenticationProvider';
+import { useAuth } from '@/providers/AuthenticationProvider';
 
 import LoginPage from '@/pages/LoginPage';
 
