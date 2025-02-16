@@ -20,11 +20,22 @@ async function pollSQS(io) {
 
     if (data.Messages) {
       for (const message of data.Messages) {
-        const { type, userId, payload } = JSON.parse(message.Body);
+        const { type, user_id, payload } = JSON.parse(message.Body);
 
         // for now, send to all connected sockets, later need to filter by userId
         // also for now if the client is not connected, the message is lost
-        io.emit(type, { userId, payload });
+        switch (type) {
+          case 'jobs:export':
+            const data = {
+              message: `Export job completed for project ${payload.project_id}. Click here to download CSV.`,
+              url: payload.s3Url,
+            };
+            console.log('Sending notification:', data);
+            io.emit('notification', data);
+            break;
+          default:
+            break;
+        }
 
         await sqs.send(
           new DeleteMessageCommand({

@@ -56,7 +56,10 @@ io.on('connection', async (socket) => {
   const socketId = socket.id;
   //await addSocketConnection(userId, socketId);
   console.log(`user ${userId} connected on socket ${socketId}`);
-  io.emit('user connected', { userId: 'x' });
+  socket.on('disconnect', async (reason) => {
+    //await removeSocketConnection(userId, socketId);
+    console.log(`user ${userId} disconnected on socket ${socketId}`);
+  });
 });
 
 pollSQS(io);
